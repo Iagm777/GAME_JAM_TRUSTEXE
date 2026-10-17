@@ -23,5 +23,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/00_Scenes/Nucleo.unity
     guid: 963cd7a1941268f4f8fbf5e45d059b1e
+  - enabled: 1
+    path: Assets/00_Scenes/Resultado.unity
+    guid: 6a1df90daecb49f899dc6734b31e6a11
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
