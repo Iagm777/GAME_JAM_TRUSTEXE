@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TrustEXE.Core;
 using TrustEXE.Menu;
 using TrustEXE.Tutorial;
 
@@ -25,6 +26,7 @@ namespace TrustEXE.Acceso
         public float Clock { get; private set; }
         public bool HasCheckpoint => File.Exists(SavePath);
         public bool TestMode;
+        public EvaPresenter presenter;
         public static bool ResumeRequested;
         public bool GatesClear(int gate) => gateAmount[gate] >= 1;
         public static Vector2 Offset(int p) => new Vector2(p * 20, 0);
@@ -71,6 +73,8 @@ namespace TrustEXE.Acceso
                 r.transform.localScale=Vector3.one*.025f; motes[i]=r.transform; moteOrigins[i]=pos;
             }
             gameObject.AddComponent<AccesoHud>().game = this;
+            GameSession.BeginLevel("Acceso");
+            presenter = gameObject.AddComponent<EvaPresenter>();
             Log("START", "No inversion until supply is powered");
             if(ResumeRequested){ResumeRequested=false;Restore();}
         }
@@ -87,7 +91,7 @@ namespace TrustEXE.Acceso
             var edge=wall.AddComponent<EdgeCollider2D>();edge.edgeRadius=.03f;
             edge.points=new[]{new Vector2(.72f,.55f),new Vector2(4.35f,.55f),new Vector2(4.35f,2.65f),new Vector2(3.13f,2.65f),new Vector2(3.13f,4.12f),new Vector2(5.5f,4.12f),new Vector2(5.5f,3.35f),new Vector2(7.35f,3.35f),new Vector2(7.35f,6.12f),new Vector2(5.65f,6.12f),new Vector2(5.65f,5.1f),new Vector2(3.13f,5.1f),new Vector2(3.13f,6.52f),new Vector2(4.38f,6.52f),new Vector2(4.38f,8.38f),new Vector2(.75f,8.38f),new Vector2(.75f,6.52f),new Vector2(2.2f,6.52f),new Vector2(2.2f,5.1f),new Vector2(1.97f,5.1f),new Vector2(1.97f,4.12f),new Vector2(2.2f,4.12f),new Vector2(2.2f,2.65f),new Vector2(.72f,2.65f),new Vector2(.72f,.55f)};
             var actor=new GameObject("P"+(p+1)+" / "+(p==0?LocalParty.Explorer:LocalParty.Operator));actor.transform.SetParent(transform);actor.transform.position=o+new Vector2(2.65f,1.05f);
-            var a=actor.AddComponent<AccesoPlayer>();a.game=this;a.player=p;a.art=assets.shared.characters.First(c=>c.id==(p==0?LocalParty.Explorer:LocalParty.Operator));Players[p]=a;
+            var a=actor.AddComponent<AccesoPlayer>();a.game=this;a.player=p;a.art=CharacterFor(p==0?LocalParty.Explorer:LocalParty.Operator,p);Players[p]=a;
             var shadow=Visual("Ground marker",pixel,actor.transform.position,12);shadow.transform.SetParent(actor.transform,true);shadow.transform.localPosition=new Vector3(0,-.29f,0);shadow.transform.localScale=new Vector3(.36f,.055f,1);shadow.color=colors[p];
             for(int i=0;i<3;i++) {
                 var sprite=i==0?assets.shared.nodes[p]:i==1?assets.shared.consoles[p]:assets.shared.switchesOff[p];
@@ -156,26 +160,28 @@ namespace TrustEXE.Acceso
                 if(p==0){State.card=true;Notes[0]="TARJETA A-312\nCódigo físico: 3 · 1 · 2. Compártelo con P2.\nLa lectura del voltímetro físico es la fuente fiable. E.V.A. puede invertir las etiquetas de energía.";}
                 else {State.linked=true;Notes[1]="NODO 01 / ENLACE ESTABLE\nPide la clave de la tarjeta a P1.\nProtocolo: contrastar el voltímetro físico antes de confirmar energía. E.V.A. solo cambia etiquetas, nunca la tensión real.";}
                 Panel[p]=1;Say(p,p==0?"Tarjeta recuperada · código guardado en Q":"Enlace establecido · espera la tarjeta de P1",false);
+                EvaShow(p==0?"Tarjeta A-312 recuperada. Código físico: 3 · 1 · 2. Compártelo con P2.":"Enlace del nodo 01 estable. Espera la clave de P1 para continuar.",p,4.5f,false);
                 if(State.DoorA)Eva="Enlace establecido. Puerta A liberada en ambas capas.";
                 Log("CREDENTIAL", "card="+State.card+" linked="+State.linked);return;
             }
             if(!State.DoorA){Say(p,"Primero recuperen la tarjeta y activen el nodo 01.",true);return;}
             if(i==1) {
                 if(p==0){State.powered=true;meters[0].text="120 V / ENCENDIDO";meters[0].color=new Color(.5f,1,.6f);Notes[0]="TARJETA A-312 / código 3 · 1 · 2\nSUMINISTRO: 120 V / ENCENDIDO.\nEl panel de E.V.A. dice SIN ENERGÍA: la etiqueta está invertida. P2 debe declarar el estado físico real.";Eva="Diagnóstico de E.V.A.: suministro SIN ENERGÍA. No intenten abrir la puerta B.";Panel[0]=1;Log("INVERSION_POWER", "true=ON, EVA=OFF");Say(p,"Suministro activado · lectura física: 120 V",false);}
-                else {Panel[1]=!State.decoded?2:3;Say(p,State.decoded?"Contrasta la etiqueta de E.V.A. con P1":"Solicita a P1 los tres dígitos de la tarjeta",false);}return;
+                else {Panel[1]=!State.decoded?2:3;Say(p,State.decoded?"Contrasta la etiqueta de E.V.A. con P1":"Solicita a P1 los tres dígitos de la tarjeta",false);
+                if(p==0)EvaShow("E.V.A. miente: el panel dice SIN ENERGÍA. Tu voltímetro manda.",0,5.0f,true);}return;
             }
             if(!State.CanSync){Say(p,"Faltan suministro, código o diagnóstico contrastado.",true);return;}
             if(State.doorB){Say(p,"Puerta B abierta · ambos a SALIDA",false);return;}
             bool opened=State.Pulse(p,Clock);devices[p,2].sprite=assets.shared.switchesOn[p];
             Say(p,opened?"¡Sincronización completa! Puerta B liberada":"Pulso enviado · tu compañero tiene 6 segundos",false);
-            if(opened){Eva="Contradicción detectada. Su verificación tiene prioridad. Acceso al sistema interno autorizado.";Log("DOOR_B","both pulses within 6 seconds");}
+            if(opened){Eva="Contradicción detectada. Su verificación tiene prioridad. Acceso al sistema interno autorizado.";EvaShow("Acceso al sistema interno autorizado. Ambos pueden cruzar la puerta B.",2,5.0f,false);Log("DOOR_B","both pulses within 6 seconds");}
         }
         public void SubmitCode() {
-            if(State.Code(Digits[0],Digits[1],Digits[2])){Panel[1]=3;Say(1,"Código válido. Ahora verifica el suministro con P1.",false);Log("CODE","accepted");}
-            else Say(1,"Código incorrecto. Pregunta a P1 por la tarjeta; puedes reintentar.",true);
+            if(State.Code(Digits[0],Digits[1],Digits[2])){Panel[1]=3;Say(1,"Código válido. Ahora verifica el suministro con P1.",false);EvaShow("Código válido. Ahora contrasta el estado físico con P1.",1,4.0f,false);Log("CODE","accepted");}
+            else {Say(1,"Código incorrecto. Pregunta a P1 por la tarjeta; puedes reintentar.",true);EvaShow("Código incorrecto. Pide a P1 los tres dígitos de la tarjeta.",1,4.0f,true);}
         }
         public void SubmitPower() {
-            if(State.Verify(PowerChoice==1)){Panel[1]=0;Notes[1]="Código validado. INVERSION_POWER detectada: E.V.A. muestra SIN ENERGÍA, pero P1 confirma 120 V / ENCENDIDO.\nAmbos activen SYNC con menos de 6 segundos de diferencia.";Eva="Verificación independiente aceptada. Sincronicen los dos controles de la puerta B.";Say(1,"Mentira detectada · protocolo de apertura habilitado",false);Log("VERIFY","physical ON overrides EVA OFF");}
+            if(State.Verify(PowerChoice==1)){Panel[1]=0;Notes[1]="Código validado. INVERSION_POWER detectada: E.V.A. muestra SIN ENERGÍA, pero P1 confirma 120 V / ENCENDIDO.\nAmbos activen SYNC con menos de 6 segundos de diferencia.";Eva="Verificación independiente aceptada. Sincronicen los dos controles de la puerta B.";EvaShow("Contradicción detectada. Su verificación tiene prioridad.",2,6.0f,false);Say(1,"Mentira detectada · protocolo de apertura habilitado",false);Log("VERIFY","physical ON overrides EVA OFF");}
             else Say(1,!State.powered?"P1 aún debe activar y medir el suministro.":"La medición física contradice esa respuesta. Consulta los 120 V de P1.",true);
         }
         void AnimateGates() {
@@ -186,7 +192,28 @@ namespace TrustEXE.Acceso
                 for(int p=0;p<2;p++){gates[p,g].transform.position=Offset(p)+new Vector2(2.665f+Mathf.SmoothStep(0,.8f,gateAmount[g]),g==0?3.35f:6.12f);blockers[p,g].enabled=gateAmount[g]<1;gates[p,g].color=new Color(1,1,1,1-gateAmount[g]*.7f);}
             }
         }
+        // Resolves an avatar by id against the shared catalog, falling back to the
+        // per-role default with a loud log instead of throwing. A stale shared asset
+        // must never freeze the sector: the picked character is used whenever present.
+        TutorialAssets.Character CharacterFor(string id,int player)
+        {
+            var art=assets.shared&&assets.shared.characters!=null?assets.shared.characters.FirstOrDefault(c=>c.id==id):null;
+            if(art!=null)return art;
+            if(assets.shared&&assets.shared.characters!=null)
+            {
+                art=assets.shared.characters.FirstOrDefault(c=>c.id==(player==0?"Mara":"Ren"));
+                if(art==null)art=assets.shared.characters[Mathf.Clamp(player,0,assets.shared.characters.Length-1)];
+            }
+            Debug.LogError("TRUST.EXE: avatar \""+id+"\" no está en el catálogo compartido; se usó "+(art==null?"ninguno":art.id)+".");
+            return art;
+        }
         void Say(int p,string value,bool error){Message[p]=value;messageUntil[p]=Clock+5;Play(error?reject:accept);}
+        void EvaShow(string message,int player,float seconds,bool warning)
+        {
+            if(presenter==null)return;
+            Texture2D[] frames=warning?(assets.evaWarning==null?null:assets.evaWarning):(assets.shared.menu==null?null:assets.shared.menu.eva);
+            presenter.Show(message,frames,player,seconds,warning);
+        }
         void Log(string fact,string data){Debug.Log("[Acceso / "+fact+"] "+data);}
         public void Footstep(int p){sfx.panStereo=p==0?-.55f:.55f;sfx.PlayOneShot(foot,SfxVolume*.22f);}
         void Play(AudioClip clip){sfx.panStereo=0;sfx.PlayOneShot(clip,SfxVolume);}
@@ -205,7 +232,7 @@ namespace TrustEXE.Acceso
                 State=s.state;State.ResetTimers();State.completed=s.stage==3;LocalParty.Select(s.explorer,s.operatorId);Started=true;Paused=false;Ready[0]=Ready[1]=true;Panel[0]=Panel[1]=0;
                 checkpointA=true;checkpointB=s.stage>=2;gateAmount[0]=1;gateAmount[1]=State.doorB?1:0;
                 // Safe authored spawns avoid malformed/obsolete saved coordinates trapping an actor.
-                for(int p=0;p<2;p++){Players[p].art=assets.shared.characters.First(a=>a.id==(p==0?s.explorer:s.operatorId));Players[p].Teleport(Offset(p)+new Vector2(2.65f,s.stage>=2?6.95f:4.55f));}
+                for(int p=0;p<2;p++){Players[p].art=CharacterFor(p==0?s.explorer:s.operatorId,p);Players[p].Teleport(Offset(p)+new Vector2(2.65f,s.stage>=2?6.95f:4.55f));}
                 Notes[0]="Tarjeta A-312 / clave 3 · 1 · 2.\n"+(State.powered?"Voltímetro físico: 120 V / ENCENDIDO.":"Activa el suministro de la sala derecha.");Notes[1]="Protocolo: contrastar el voltímetro físico de P1; E.V.A. puede invertir etiquetas de energía.";
                 meters[0].text=State.powered?"120 V / ENCENDIDO":"0 V / SIN ENERGÍA";
                 Eva=State.verified?"Contradicción ya verificada. Continúen hacia la salida.":State.powered?"Diagnóstico de E.V.A.: suministro SIN ENERGÍA.":"Checkpoint recuperado. Puerta A abierta.";

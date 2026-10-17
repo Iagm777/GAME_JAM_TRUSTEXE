@@ -1,4 +1,5 @@
 using UnityEngine;
+using TrustEXE.Core;
 using TrustEXE.Menu;
 using TrustEXE.Tutorial;
 
@@ -22,6 +23,7 @@ namespace TrustEXE.Acceso
             Label(26,14,410,42,"TRUST.EXE / ACCESO",30,Color.white,true);
             Label(520,21,600,36,game.State.doorB?"03 / RUTA AL SISTEMA INTERNO":game.State.DoorA?"02 / NO CONFÍES SIN VERIFICAR":"01 / DOS IDENTIDADES, UNA LLAVE",21,amber,true);
             Label(1260,23,310,32,"SECTOR 01     "+Mathf.FloorToInt(game.Clock/60).ToString("00")+":"+Mathf.FloorToInt(game.Clock%60).ToString("00"),20,cyan);
+            Label(1118,25,130,30,"VIDAS "+GameSession.Lives+"/"+GameSession.MaxLives,19,cyan,true);
             for(int p=0;p<2;p++) {
                 float x=p*800;var c=p==0?amber:cyan;
                 Box(x+26,65,748,2,c);

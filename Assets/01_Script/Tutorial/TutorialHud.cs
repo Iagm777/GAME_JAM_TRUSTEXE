@@ -1,4 +1,5 @@
 using UnityEngine;
+using TrustEXE.Core;
 using TrustEXE.Menu;
 
 namespace TrustEXE.Tutorial
@@ -32,6 +33,7 @@ namespace TrustEXE.Tutorial
             Text(new Rect(1170,22,400,35),"TUTORIAL · ENLACE DE CONFIANZA",18,cyan,true);
             string[] lessons={"01  EXPLORA","02  COMPARTE","03  SINCRONIZA","04  ESCAPA","ENLACE COMPLETO"};
             Text(new Rect(560,20,530,40),lessons[(int)game.Progress.Lesson],25,amber,true);
+            Text(new Rect(1102,22,130,32),"VIDAS "+GameSession.Lives+"/"+GameSession.MaxLives,18,cyan,true);
             for(int p=0;p<2;p++)
             {
                 float x=p*800;var c=p==0?amber:cyan;

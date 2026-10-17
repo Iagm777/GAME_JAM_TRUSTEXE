@@ -31,6 +31,11 @@ namespace TrustEXE.Tutorial.Editor
         static IEnumerator Steps(TutorialGame g)
         {
             Require(g.assets.characters.Length==12&&g.assets.music,"catalog + music");
+            Require(g.assets.menu!=null&&g.assets.menu.avatars!=null&&g.assets.menu.avatars.Length==g.assets.characters.Length,"menu catalog bound");
+            for(int i=0;i<g.assets.characters.Length;i++){
+                Require(g.assets.characters[i].id==g.assets.menu.avatars[i].id,"identity order "+i);
+                Require(g.assets.characters.FirstOrDefault(a=>a.id==g.assets.menu.avatars[i].id)!=null,"selection resolves "+g.assets.menu.avatars[i].id);
+            }
             foreach(var c in g.assets.characters)Require(c.idle&&c.down.Length==3&&c.up.Length==3&&c.left.Length==3&&c.right.Length==3,"animation "+c.id);
             g.Ready(0);g.Ready(1);var k=Keyboard.current;
             var a=g.Players[0].Position;var b=g.Players[1].Position;

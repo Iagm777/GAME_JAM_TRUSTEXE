@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TrustEXE.Core;
 using TrustEXE.Menu;
 
 namespace TrustEXE.Tutorial
@@ -37,6 +38,7 @@ namespace TrustEXE.Tutorial
         readonly float[] feedbackUntil=new float[2];
         readonly Color[] accents={new Color(1,.66f,.25f),new Color(.2f,.85f,1)};
         TutorialHud hud;
+        public EvaPresenter presenter;
         AudioSource sound;
         AudioSource music;
         AudioClip chime, errorTone;
@@ -48,10 +50,12 @@ namespace TrustEXE.Tutorial
         void Start()
         {
             if(!LocalParty.IsReady) LocalParty.Select("Mara","Ren");
+            GameSession.BeginLevel("Tutorial");
             white=Sprite.Create(Texture2D.whiteTexture,new Rect(0,0,1,1),new Vector2(.5f,.5f),1);
             sound=gameObject.AddComponent<AudioSource>();sound.playOnAwake=false;
             chime=Tone(680,.18f);errorTone=Tone(180,.12f);
             music=gameObject.AddComponent<AudioSource>();music.clip=assets.music;music.loop=true;music.volume=PlayerPrefs.GetFloat("TutorialVolume",.55f);music.Play();
+            presenter=gameObject.AddComponent<EvaPresenter>();
             for(int p=0;p<2;p++) BuildWorld(p);
             hud=gameObject.AddComponent<TutorialHud>();hud.Initialize(this);
             gameObject.AddComponent<TutorialAtmosphere>().Initialize(this);
@@ -73,7 +77,8 @@ namespace TrustEXE.Tutorial
             var actor=new GameObject("P"+(p+1)+" "+(p==0?LocalParty.Explorer:LocalParty.Operator));actor.transform.SetParent(transform);actor.transform.position=offset+new Vector2(3.8f,1.8f);
             Players[p]=actor.AddComponent<TutorialPlayer>();Players[p].player=p;Players[p].game=this;
             string identity=p==0?LocalParty.Explorer:LocalParty.Operator;
-            Players[p].art=assets.characters.FirstOrDefault(a=>a.id==identity)??assets.characters[p];
+            Players[p].art=assets.characters.FirstOrDefault(a=>a.id==identity);
+            if(Players[p].art==null){Players[p].art=IdentityFallback(p);Debug.LogError("TRUST.EXE: avatar \""+identity+"\" no está en TutorialAssets; se usó "+Players[p].art.id+". Reconstruye los datos desde el catálogo del menú.");}
             var shadow=Visual("Player ground marker",white,offset+new Vector2(3.8f,1.8f),3);
             shadow.transform.SetParent(actor.transform,true);shadow.transform.localPosition=new Vector3(0,-.25f,.1f);
             shadow.transform.localScale=new Vector3(.42f,.10f,1);shadow.color=new Color(accents[p].r,accents[p].g,accents[p].b,.7f);
@@ -107,7 +112,7 @@ namespace TrustEXE.Tutorial
         }
         public bool CanMove(int p) => Started&&!Paused&&!Reading[p]&&!Progress.completed;
         public void SetMusicVolume(float value) {if(music)music.volume=value;}
-        public void Ready(int p) {if(IntroReady[p])return;IntroReady[p]=true;Play(false);if(IntroReady[0]&&IntroReady[1]) {Started=true;EvaMessage="Primera lección: muévanse por sus salas. Cada persona controla a su propio personaje.";}}
+        public void Ready(int p) {if(IntroReady[p])return;IntroReady[p]=true;Play(false);if(IntroReady[0]&&IntroReady[1]) {Started=true;EvaMessage="Primera lección: muévanse por sus salas. Cada persona controla a su propio personaje.";EvaShow(EvaMessage, 2, 5.0f, false);}}
         public void TogglePause() {if(!Started||Progress.completed)return;Paused=!Paused;hud.ShowPause(Paused);}
         public void ShowHelp(int p)
         {
@@ -152,9 +157,9 @@ namespace TrustEXE.Tutorial
             if(lastLesson!=Progress.Lesson)
             {
                 lastLesson=Progress.Lesson;Play(false);
-                if(lastLesson==Lesson.Clues)EvaMessage="Bien. P1: inspecciona el terminal. P2: activa el nodo. Después cuenten en voz alta lo que descubrieron.";
-                if(lastLesson==Lesson.Sequence)EvaMessage="Las dos pistas son correctas. Primero actúa el mundo físico; después, el virtual. Un error reinicia la secuencia, no sus pistas.";
-                if(lastLesson==Lesson.Exit)EvaMessage="Secuencia correcta. He abierto ambas puertas. Reúnanse en las zonas SALIDA: guardaré solo cuando lleguen los dos.";
+                if(lastLesson==Lesson.Clues){EvaMessage="Bien. P1: inspecciona el terminal. P2: activa el nodo. Después cuenten en voz alta lo que descubrieron.";EvaShow(EvaMessage, 2, 5.0f, false);}
+                if(lastLesson==Lesson.Sequence){EvaMessage="Las dos pistas son correctas. Primero actúa el mundo físico; después, el virtual. Un error reinicia la secuencia, no sus pistas.";EvaShow(EvaMessage, 2, 5.0f, false);}
+                if(lastLesson==Lesson.Exit){EvaMessage="Secuencia correcta. He abierto ambas puertas. Reúnanse en las zonas SALIDA: guardaré solo cuando lleguen los dos.";EvaShow(EvaMessage, 2, 5.0f, false);}
             }
             hud.Refresh();
         }
@@ -168,6 +173,7 @@ namespace TrustEXE.Tutorial
             {
                 Progress.ReadClue(p);Reading[p]=true;
                 Notes[p]=p==0?"El símbolo del terminal es TRIÁNGULO. Díselo a P2. Activa primero el interruptor físico con ese símbolo.":"Clave parcial: CÍRCULO → 1; TRIÁNGULO → 2. Pregunta a P1 su símbolo. Después de P1, activa el número correspondiente.";
+                EvaShow(p==0?"He descifrado el terminal: el símbolo es TRIÁNGULO.":"He activado el nodo: CÍRCULO → 1 · TRIÁNGULO → 2.", p, 4.5f, false);
                 Popup[p]=(p==0?"TERMINAL FÍSICO / PISTA RECUPERADA":"NODO VIRTUAL / CLAVE PARCIAL")+"\n\n"+Notes[p]+"\n\nEl orden importa: P1 primero → P2 después.\n\nComparte tu pista en voz alta. Puedes volver a consultarla con "+LocalControls.HelpName(p)+".";
                 d.view.color=new Color(.65f,1,.78f);Play(false);return;
             }
@@ -182,6 +188,7 @@ namespace TrustEXE.Tutorial
                 Say(0,"Secuencia reiniciada. Revisa el símbolo y activa P1 primero.",true);
                 Say(1,"Espera a P1; después pulsa el número que corresponde a su símbolo.",false);
                 EvaMessage="No hay penalización. Sus pistas siguen disponibles. Recuerden: físico primero, virtual después.";
+                EvaShow(EvaMessage, 2, 4.0f, true);
             }
             else {Say(p,Progress.DoorOpen?"¡ENLACE COMPLETO! Abriendo puertas…":"Paso 1 correcto. Ahora le toca a P2.",false);if(Progress.DoorOpen)StartCoroutine(OpenGates());}
         }
@@ -197,7 +204,20 @@ namespace TrustEXE.Tutorial
             for(int p=0;p<2;p++){gates[p].enabled=false;gateViews[p].GetComponent<SpriteRenderer>().sprite=assets.doorsOpen[p];}
             GatePassable=true;
         }
+        TutorialAssets.Character IdentityFallback(int p)
+        {
+            string name=p==0?"Mara":"Ren";
+            var art=assets.characters.FirstOrDefault(a=>a.id==name);
+            if(art==null&&assets.characters!=null&&assets.characters.Length>0)art=assets.characters[Mathf.Clamp(p,0,assets.characters.Length-1)];
+            return art;
+        }
         void Say(int p,string message,bool error) {Feedback[p]=message;feedbackUntil[p]=Time.unscaledTime+5;Play(error);}
+        void EvaShow(string message,int player,float seconds,bool warning)
+        {
+            if(presenter==null)return;
+            Texture2D[] frames=assets.menu==null?null:assets.menu.eva;
+            presenter.Show(message,frames,player,seconds,warning);
+        }
         public void SaveCheckpoint()
         {
             if(!Progress.CanComplete)return;attemptedSave=true;
@@ -206,10 +226,11 @@ namespace TrustEXE.Tutorial
                 Progress.completed=true;
                 TutorialCheckpoint.Write(new TutorialSave {explorer=LocalParty.Explorer,operatorId=LocalParty.Operator,explorerPosition=Players[0].Position,operatorPosition=Players[1].Position,progress=Progress,savedUtc=DateTime.UtcNow.ToString("O")});
                 SaveError=null;EvaMessage="Checkpoint guardado. Han aprendido a explorar, compartir pistas y coordinar acciones. El siguiente sector es Acceso.";
+                EvaShow(EvaMessage, 2, 6.0f, false);
                 Play(false);hud.ShowComplete();
             }
             catch(Exception e) when(e is System.IO.IOException||e is UnauthorizedAccessException)
-            {Progress.completed=false;SaveError="No se pudo guardar. Permanezcan en SALIDA y pulsen interactuar para reintentar.";EvaMessage=SaveError;Debug.LogWarning("TRUST.EXE checkpoint: "+e.Message);}
+            {Progress.completed=false;SaveError="No se pudo guardar. Permanezcan en SALIDA y pulsen interactuar para reintentar.";EvaMessage=SaveError;EvaShow(SaveError, 2, 4.5f, true);Debug.LogWarning("TRUST.EXE checkpoint: "+e.Message);}
         }
         public bool RestoreCheckpoint()
         {
