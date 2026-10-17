@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6012239796989221395
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4591544920949823962}
+  - component: {fileID: 7103850229264940710}
+  m_Layer: 0
+  m_Name: PF_Nucleo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4591544920949823962
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012239796989221395}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7103850229264940710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012239796989221395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ca0c5d5c3ae31e4c933ccce2c7e8085, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrustEXE.Nucleo.NucleoGame
+  assets: {fileID: 11400000, guid: c80a633ef276ddc47b43e46df55e6a90, type: 2}
+  State:
+    stage: 0
+    sequence: 0
+    strikes: 0
+    hints: 0
+    cooperation: 0
+    elapsed: 0
+    completed: 0
+    powered: 000000
+    inspected: 0000
+    votes: ffffffffffffffff
+  Players:
+  - {fileID: 0}
+  - {fileID: 0}
+  Started: 0
+  Paused: 0
+  TestMode: 0
+  Ready: 0000
+  Notes: 0000
+  Message: 
+  SaveError: 
+  Clock: 0
+  Remaining: 100
+  Integrity: 4

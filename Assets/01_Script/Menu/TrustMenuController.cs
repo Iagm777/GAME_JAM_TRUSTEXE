@@ -242,6 +242,12 @@ namespace TrustEXE.Menu
             if (available) ActionButton(content, "ENTRAR AL TUTORIAL", 550, 724, 500, 66, amber, LaunchTutorial);
             else Label(content, "PRÓXIMO DESTINO: TUTORIAL\nLa escena jugable aún no está integrada en este proyecto.", 370, 722, 860, 75, 21, muted, TextAnchor.MiddleCenter);
             ActionButton(content, "VOLVER", 1300, 759, 210, 45, cyan, ShowHome);
+            if (System.IO.File.Exists(TrustEXE.Nucleo.NucleoGame.SavePath) && Application.CanStreamedLevelBeLoaded("Nucleo"))
+                ActionButton(content, "CONTINUAR NÚCLEO", 550, 810, 500, 44, cyan, () => { if (!loading) { loading = true; TrustEXE.Nucleo.NucleoGame.ResumeRequested = true; SceneManager.LoadSceneAsync("Nucleo"); } });
+            else if (System.IO.File.Exists(TrustEXE.Vigilancia.VigilanciaGame.SavePath) && Application.CanStreamedLevelBeLoaded("Vigilancia"))
+                ActionButton(content, "CONTINUAR VIGILANCIA", 550, 810, 500, 44, cyan, () => { if (!loading) { loading = true; TrustEXE.Vigilancia.VigilanciaGame.ResumeRequested = true; SceneManager.LoadSceneAsync("Vigilancia"); } });
+            else if (System.IO.File.Exists(TrustEXE.Acceso.AccesoGame.SavePath) && Application.CanStreamedLevelBeLoaded("Acceso"))
+                ActionButton(content, "CONTINUAR ACCESO", 550, 810, 500, 44, cyan, () => { if (!loading) { loading = true; TrustEXE.Acceso.AccesoGame.ResumeRequested = true; SceneManager.LoadSceneAsync("Acceso"); } });
         }
         public void LaunchTutorial()
         {
@@ -357,3 +363,4 @@ namespace TrustEXE.Menu
         void OnDestroy() { if(moveTone) Destroy(moveTone); if(lockTone) Destroy(lockTone); }
     }
 }
+

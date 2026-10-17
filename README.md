@@ -1,4 +1,4 @@
-# TRUST.EXE — menú y selección de personajes
+# TRUST.EXE — juego cooperativo y escenario final Núcleo
 
 Unity **6000.5.5f1**, Windows, Input System. Rama: `menu-y-seleccion-de-personajes`.
 
@@ -21,9 +21,9 @@ Unity **6000.5.5f1**, Windows, Input System. Rama: `menu-y-seleccion-de-personaj
 
 ## Conectar el Tutorial
 
-Esta entrega implementa el menú y la introducción. La carpeta recibida solo contenía SampleScene; no incluye todavía escenas jugables ni puzzles.
+El proyecto incluye MainMenu, Tutorial, Acceso, Vigilancia y Núcleo. Los escenarios se conectan mediante sus salidas cooperativas.
 
-Cuando exista el Tutorial, añadirlo habilitado a Build Profiles y ajustar `tutorialScene` en `Assets/01_Script/Menu/MenuCatalog.asset` si su nombre no es `Tutorial`. Entonces aparece ENTRAR AL TUTORIAL y se carga asíncronamente. Si falta la escena, la interfaz lo comunica sin intentar cargarla.
+Las escenas están habilitadas en Build Profiles. Desde el menú se entra al Tutorial después de seleccionar la pareja y completar o saltar la introducción. Los checkpoints disponibles permiten continuar desde el sector más avanzado.
 
 El código de generación de jugadores debe leer `TrustEXE.Menu.LocalParty.Explorer` y `LocalParty.Operator`. Son los identificadores de avatar, independientes del rol. `IsReady` valida que hay una pareja. Se conservan entre escenas y se limpian al volver al inicio o iniciar otra sesión; no son un checkpoint persistente.
 
@@ -41,3 +41,19 @@ Con MainMenu en Play Mode, escribir `validate` en `Library/TrustMenuRequest.txt`
 Comprobar también visualmente la entrada de ambos personajes, clic de tarjetas, teclado compartido, historia y salida a inicio. La prueba automatizada de lógica no verifica ghosting del teclado físico. Animaciones y tonos se ejecutan con tiempo no escalado.
 
 La documentación maestra se usó como referencia narrativa y de roles. Sus prompts para construir todo el juego no forman parte de esta entrega.
+
+## Escenario final Núcleo
+
+Integrado en este mismo proyecto Unity. `Vigilancia` ofrece **ENTRAR AL NÚCLEO** al completar el ascensor. La pareja seleccionada se mantiene. También se puede abrir `Assets/00_Scenes/Nucleo.unity` para probar directamente (Mara y Ren si no hay selección).
+
+- Energía cruzada: tres nodos, pulsos de ambos jugadores separados por un máximo de 7 segundos, límite de etapa de 100 segundos.
+- Verificación: ambos consultan el registro de entrada. P1 comunica III > I > II y P2 lo introduce físicamente en sus nodos. La información de E.V.A. está marcada como caché antigua. Límite de 90 segundos.
+- Sincronización: ambos recorren III > I > II con pulsos separados por un máximo de 2,5 segundos. Límite de 75 segundos.
+- Láseres alternan libre, aviso de 1,5 segundos y daño; patrullas recorren el corredor. Cuatro impactos reinician la etapa. Hay dos segundos de inmunidad tras daño y tres al reaparecer. Las etapas anteriores se conservan.
+- Sala final: ambos eligen AISLAR o RESTAURAR. Pueden cambiar su decisión si no coincide. No hay límite de tiempo ni daño en esta sala.
+- Victoria: pareja elegida en primer plano, los diez personajes restantes al fondo, desenlace, tiempo, consultas y cooperación.
+- Animación direccional de los doce personajes, núcleo rotatorio, nodos pulsantes, patrullas, E.V.A. neutral/advertencia/alarma, música original a 150 BPM y efectos estéreo.
+
+Controles: P1 WASD/E/Q/R; P2 flechas/Enter/Ctrl derecho/Shift derecho. Q y Ctrl derecho abren notas; el tiempo sigue corriendo. Escape pausa ambas capas. La pausa permite ajustar música y efectos, reintentar o recuperar. El menú principal da prioridad a CONTINUAR NÚCLEO si existe un checkpoint. El checkpoint de Núcleo es independiente de los sectores anteriores y se guarda al cambiar de etapa, reintentar y terminar; recuperar comienza en la entrada con tiempo e integridad renovados.
+
+El menú del Editor `TRUST.EXE/Nucleo/Preparar escenario final` prepara recursos y escena sin reemplazar los existentes. Para validación: escribir `validate` en `Library/TrustNucleoRequest.txt`; `play` inicia Núcleo; `runtime` ejecuta el recorrido automatizado en Play y usa un guardado de prueba separado; `capture` captura la vista; `stop` termina Play; `menu` restablece MainMenu como inicio de Play; `build` compila todas las escenas habilitadas en `Builds/Nucleo/TRUST_EXE.exe`. Resultados en `Library/NucleoValidation.txt`, `Library/NucleoRuntimeValidation.txt` y `Library/NucleoBuild.txt`.
