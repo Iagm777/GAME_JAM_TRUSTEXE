@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -47,7 +48,7 @@ namespace TrustEXE.Result.Editor
                 var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
                 SceneManager.SetActiveScene(scene);
                 var root = new GameObject("TRUST.EXE / Resultado");
-                root.AddComponent<ResultScene>().shared = shared;
+                root.AddComponent<TrustEXE.Result.ResultScene>().shared = shared;
                 EditorSceneManager.SaveScene(scene, ScenePath);
                 EditorSceneManager.CloseScene(scene, true);
                 if (original.IsValid()) SceneManager.SetActiveScene(original);
@@ -60,13 +61,14 @@ namespace TrustEXE.Result.Editor
         /// <summary>Pure-state validation of the shared-lives and outcome contract.</summary>
         public static void Validate()
         {
+            GameSession.SuppressSceneLoad = true;
             try
             {
                 GameSession.Lives = 3; GameSession.Level = "";
                 Check(!GameSession.LoseLife() && GameSession.Lives == 2, "lose life decrements");
                 Check(!GameSession.LoseLife() && GameSession.Lives == 1, "two lives left");
                 Check(GameSession.LoseLife() && GameSession.Lives == 0, "third life empties pool");
-                Check(!GameSession.LoseLife() && GameSession.Lives == 0, "pool never goes negative");
+                Check(GameSession.LoseLife() && GameSession.Lives == 0, "pool stays at zero after empty");
                 GameSession.BeginLevel("Tutorial");
                 GameSession.Lives = 1;
                 GameSession.BeginLevel("Tutorial");

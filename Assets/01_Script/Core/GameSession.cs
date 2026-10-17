@@ -26,6 +26,9 @@ namespace TrustEXE.Core
         public static int Ending; // 0 AISLAR, 1 RESTAURAR
         public static string EndingText = "";
 
+        // Test-only hook: state validations run outside Play Mode must not load scenes.
+        public static bool SuppressSceneLoad;
+
         /// Call from each sector's Start. Resets the shared pool only when the
         /// player enters a different level, so an in-level restart keeps the pool.
         public static void BeginLevel(string level)
@@ -47,7 +50,7 @@ namespace TrustEXE.Core
             FailureReason = reason;
             Defeated = true;
             Victorious = false;
-            SceneManager.LoadSceneAsync("Resultado");
+            if (!SuppressSceneLoad) SceneManager.LoadSceneAsync("Resultado");
         }
 
         /// Routes to the Victoria screen with the final stats.
@@ -61,7 +64,7 @@ namespace TrustEXE.Core
             Cooperation = cooperation;
             Victorious = true;
             Defeated = false;
-            SceneManager.LoadSceneAsync("Resultado");
+            if (!SuppressSceneLoad) SceneManager.LoadSceneAsync("Resultado");
         }
 
         /// Reintentar nivel: restores the full pool and reloads the failed sector.
@@ -71,11 +74,12 @@ namespace TrustEXE.Core
             Lives = MaxLives;
             Level = "";
             Defeated = Victorious = false;
+            if (SuppressSceneLoad) return;
             if (!string.IsNullOrEmpty(level)) SceneManager.LoadSceneAsync(level);
             else SceneManager.LoadSceneAsync("MainMenu");
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        public static void Reset() { Lives = MaxLives; Level = ""; FailureReason = ""; Defeated = Victorious = false; }
+        public static void Reset() { Lives = MaxLives; Level = ""; FailureReason = ""; Defeated = Victorious = false; SuppressSceneLoad = false; }
     }
 }

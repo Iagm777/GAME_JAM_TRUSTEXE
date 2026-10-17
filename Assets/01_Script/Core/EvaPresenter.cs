@@ -71,11 +71,11 @@ namespace TrustEXE.Core
 
             float cx = side == 0 ? 400 : side == 1 ? 1200 : 800; // player half or centered
             var panel = Panel(canvas, "EVA panel", cx - 350, 150, 700, 330, new Color(.03f, .06f, .1f, .96f));
-            Panel(panel, "EVA edge", 0, 0, 700, 3, warned ? new Color(1, .2f, .12f) : new Color(.25f, .87f, 1));
-            portrait = Picture(panel, "EVA portrait", frames[0], 30, 46, 190, 190);
-            stamp = Label(panel, warned ? "E.V.A.  /  AVISO" : "E.V.A.  /  SEÑAL", 250, 46, 420, 36, 22, new Color(.25f, .87f, 1), TextAnchor.UpperLeft);
-            body = Label(panel, message, 250, 96, 420, 200, 24, Color.white, TextAnchor.UpperLeft);
-            content = panel;
+            Panel(panel.rectTransform, "EVA edge", 0, 0, 700, 3, warned ? new Color(1, .2f, .12f) : new Color(.25f, .87f, 1));
+            portrait = Picture(panel.rectTransform, "EVA portrait", frames[0], 30, 46, 190, 190);
+            stamp = Label(panel.rectTransform, warned ? "E.V.A.  /  AVISO" : "E.V.A.  /  SEÑAL", 250, 46, 420, 36, 22, new Color(.25f, .87f, 1), TextAnchor.UpperLeft);
+            body = Label(panel.rectTransform, message, 250, 96, 420, 200, 24, Color.white, TextAnchor.UpperLeft);
+            content = panel.rectTransform;
 
             var dim = Panel(canvas, "EVA backdrop", 0, 0, 1600, 900, new Color(.01f, .02f, .04f, .08f));
             dim.raycastTarget = false;
