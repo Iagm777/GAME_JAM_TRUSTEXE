@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TrustEXE.Core;
 using TrustEXE.Menu;
 using TrustEXE.Tutorial;
 namespace TrustEXE.Vigilancia {
@@ -13,6 +14,7 @@ namespace TrustEXE.Vigilancia {
   public VigilanciaAudio Audio{get;private set;}
   public bool Started,Paused,TestMode; public static bool ResumeRequested;
   public bool[] Ready=new bool[2],Notes=new bool[2],AtExit=new bool[2];
+  public EvaPresenter presenter;
   public float Clock,Alert; public int Alarms;
   public string[] Message={"",""};float[] messageUntil=new float[2];
   public string SaveError="";
@@ -56,6 +58,8 @@ namespace TrustEXE.Vigilancia {
     var go=new GameObject("Visible sensor cone "+i);go.transform.SetParent(transform);cones[i]=new Mesh();go.AddComponent<MeshFilter>().mesh=cones[i];coneViews[i]=go.AddComponent<MeshRenderer>();coneViews[i].sharedMaterial=lineMaterial;coneViews[i].sortingOrder=8;
    }
    gameObject.AddComponent<VigilanciaHud>().game=this;
+   GameSession.BeginLevel("Vigilancia");
+   presenter=gameObject.AddComponent<EvaPresenter>();
    if(ResumeRequested){ResumeRequested=false;Restore();}
   }
   SpriteRenderer Visual(string name,Sprite sprite,Vector2 pos,int order){var go=new GameObject(name);go.transform.SetParent(transform);go.transform.position=pos;var r=go.AddComponent<SpriteRenderer>();r.sprite=sprite;r.sortingOrder=order;return r;}
@@ -77,7 +81,7 @@ namespace TrustEXE.Vigilancia {
    }
    BuildBoundary(p);
    var go=new GameObject("P"+(p+1)+" animated avatar");go.transform.SetParent(transform);go.transform.position=o+Spawn;
-   var actor=go.AddComponent<VigilanciaPlayer>();actor.game=this;actor.player=p;actor.art=assets.shared.characters.First(a=>a.id==(p==0?LocalParty.Explorer:LocalParty.Operator));Players[p]=actor;
+   var actor=go.AddComponent<VigilanciaPlayer>();actor.game=this;actor.player=p;actor.art=CharacterFor(p==0?LocalParty.Explorer:LocalParty.Operator,p);Players[p]=actor;
    for(int i=0;i<8;i++){
     if(p==0&&i>=4&&i<7)continue;
     Sprite sprite=i==7?assets.shared.consoles[p]:i>=4?assets.shared.switchesOff[p]:i==3&&p==0?assets.shared.consoles[p]:assets.shared.nodes[p];
@@ -108,24 +112,38 @@ namespace TrustEXE.Vigilancia {
   void Edge(int p,Vector2 a,Vector2 b){var go=new GameObject("Authored wall");go.transform.SetParent(transform);go.transform.position=Offset(p);var e=go.AddComponent<EdgeCollider2D>();e.edgeRadius=.015f;e.points=new[]{a,b};}
   public int Nearest(int p){if(!Players[p])return -1;int best=-1;float range=.7f;for(int i=0;i<8;i++){if(p==0&&i>=4&&i<7)continue;float d=Vector2.Distance(Players[p].Position,Offset(p)+Device(p,i));if(d<range){range=d;best=i;}}return best;}
   public string DeviceName(int p,int i)=>i==7?"SINCRONIZAR ASCENSOR":i>=4?"INTERRUPTOR "+Roman(i-4):p==0?(i==3?"LEER REGISTRO FÍSICO":"SELLAR RELÉ "+Roman(i)):"ANULAR CÁMARA "+(i+1)+" / 14 s";
+  // Resolves an avatar by id against the shared catalog, falling back to the
+  // per-role default with a loud log instead of throwing (stale shared data must
+  // never freeze the sector or swap the picked character silently).
+  TutorialAssets.Character CharacterFor(string id,int player){
+   var art=assets.shared&&assets.shared.characters!=null?assets.shared.characters.FirstOrDefault(c=>c.id==id):null;
+   if(art!=null)return art;
+   if(assets.shared&&assets.shared.characters!=null){
+    art=assets.shared.characters.FirstOrDefault(c=>c.id==(player==0?"Mara":"Ren"));
+    if(art==null)art=assets.shared.characters[Mathf.Clamp(player,0,assets.shared.characters.Length-1)];
+   }
+   Debug.LogError("TRUST.EXE: avatar \""+id+"\" no está en el catálogo compartido; se usó "+(art==null?"ninguno":art.id)+".");
+   return art;
+  }
   public void SetReady(int p){Ready[p]=true;Audio.Play(1,p);if(Ready[0]&&Ready[1]){Started=true;immunity=Clock+4;}}
   public void Say(int p,string s,bool error=false){Message[p]=s;messageUntil[p]=Clock+6;Audio.Play(error?2:1,p);}
   public void Interact(int p){int i=Nearest(p);if(i<0){Say(p,"Acércate a un dispositivo.",true);return;}Use(p,i);}
   public void Use(int p,int i){
    if(!CanMove(p)||i<0||i>7)return;
-   if(i==7){if(State.sequence<3){Say(p,"Valida los tres interruptores antes de sincronizar.",true);return;}if(State.lift)return;if(State.Pulse(p,Clock)){Audio.Play(5,p);SaveCheckpoint();}else Say(p,"Pulso activo: tu compañero dispone de 5 s.");return;}
-   if(p==1&&i<4){disabledUntil[i]=Clock+14;Audio.Play(3,p);Say(p,"Cámara "+(i+1)+" anulada durante 14 s. Avisa a P1.");return;}
-   if(p==0&&i==3){State.clue=true;Notes[0]=true;Say(p,"Registro actual guardado: II > I > III. Consulta con Q.");SaveCheckpoint();return;}
+   if(i==7){if(State.sequence<3){Say(p,"Valida los tres interruptores antes de sincronizar.",true);return;}if(State.lift)return;if(State.Pulse(p,Clock)){Audio.Play(5,p);SaveCheckpoint();EvaShow("Ascensor autorizado. Ambas identidades deben ocupar la plataforma.",2,5.0f,false);}else Say(p,"Pulso activo: tu compañero dispone de 5 s.");return;}
+   if(p==1&&i<4){disabledUntil[i]=Clock+14;Audio.Play(3,p);Say(p,"Cámara "+(i+1)+" anulada durante 14 s. Avisa a P1.");EvaShow("Cámara "+(i+1)+" anulada durante 14 segundos. P1 puede sellar su relé.",1,3.0f,false);return;}
+   if(p==0&&i==3){State.clue=true;Notes[0]=true;Say(p,"Registro actual guardado: II > I > III. Consulta con Q.");EvaShow("Registro físico: II > I > III. La copia de E.V.A. tiene 30 s de retraso.",0,5.0f,false);SaveCheckpoint();return;}
    if(p==0&&i<3){
     if(State.relays[i]){Say(p,"Relé ya sellado. P2 puede activar su interruptor.");return;}
     if(!CameraDisabled(i)){Say(p,"Cámara activa: pide a P2 que anule CAM "+(i+1)+".",true);return;}
-    State.relays[i]=true;Audio.Play(4,p);Say(p,"Relé "+Roman(i)+" sellado. Barrera retirada en ambas capas.");SaveCheckpoint();return;
+    State.relays[i]=true;Audio.Play(4,p);Say(p,"Relé "+Roman(i)+" sellado. Barrera retirada en ambas capas.");EvaShow("Relé "+Roman(i)+" sellado. Barrera retirada en ambas capas.",2,4.0f,false);SaveCheckpoint();return;
    }
    if(p==1&&i>=4&&i<7){
     if(State.sequence==3){Say(p,"Secuencia completa. Ambos al control SYNC.");return;}
     int n=i-4;
     if(!State.clue||!State.relays[n]){Say(p,!State.clue?"P1 debe consultar el registro físico.":"P1 debe sellar el relé "+Roman(n)+".",true);return;}
     bool accepted=State.Switch(n);Say(p,accepted?"Interruptor aceptado / "+State.sequence+" de 3":"Orden incorrecto: secuencia reiniciada. Contrasta el registro actual de P1.",!accepted);
+    if(!accepted)EvaShow("Orden incorrecto: secuencia reiniciada. Consulta el registro ACTUAL de P1.",1,4.5f,true);
     if(!accepted){Alert=Mathf.Min(.8f,Alert+.3f);Debug.Log("[Vigilancia] EVA cached order rejected; physical order II I III");}
     SaveCheckpoint();
    }
@@ -173,12 +191,23 @@ namespace TrustEXE.Vigilancia {
    Alert=Mathf.MoveTowards(Alert,seen?1:0,Time.deltaTime*(seen?.52f:.22f));
    if(Alert>=1)TriggerAlarm();
   }
-  public void TriggerAlarm(){Alarms++;Alert=0;immunity=Clock+5;State.ResetTimers();for(int p=0;p<2;p++){Notes[p]=false;Players[p].Teleport(Offset(p)+Spawn);Say(p,"Alarma: regreso seguro. Relés y secuencia conservados.",true);}Audio.Play(6);}
+  public void TriggerAlarm(){
+   Alarms++;Alert=0;immunity=Clock+5;State.ResetTimers();
+   for(int p=0;p<2;p++){Notes[p]=false;Players[p].Teleport(Offset(p)+Spawn);Say(p,"Alarma: regreso seguro. Relés y secuencia conservados.",true);}
+   Audio.Play(6);
+   EvaShow("E.V.A. los ha registrado: pierden una vida compartida.",2,5.0f,true);
+   if(GameSession.LoseLife()&&!TestMode){GameSession.Defeat("E.V.A. los detectó y agotó sus vidas compartidas en Vigilancia.");}
+  }
+  void EvaShow(string message,int player,float seconds,bool warning){
+   if(presenter==null)return;
+   Texture2D[] frames=warning?(assets.evaAlarm==null?null:assets.evaAlarm):(assets.shared.menu==null?null:assets.shared.menu.eva);
+   presenter.Show(message,frames,player,seconds,warning);
+  }
   [Serializable] public sealed class Save {public int version=1;public VigilanciaState state;public string explorer,operatorId;public int alarms;}
   public void SaveCheckpoint(){checkpoint++;if(TestMode)return;try{var data=new Save{state=State,explorer=LocalParty.Explorer,operatorId=LocalParty.Operator,alarms=Alarms};string tmp=SavePath+".tmp";File.WriteAllText(tmp,JsonUtility.ToJson(data,true));if(File.Exists(SavePath))File.Replace(tmp,SavePath,SavePath+".bak");else File.Move(tmp,SavePath);SaveError="";}catch(Exception e)when(e is IOException||e is UnauthorizedAccessException){SaveError="No se pudo guardar: "+e.Message;}}
   public bool Restore(){try{var s=JsonUtility.FromJson<Save>(File.ReadAllText(SavePath));if(s==null||s.version!=1||s.state==null||s.state.relays==null||s.state.relays.Length!=3||s.state.sequence<0||s.state.sequence>3||s.explorer==s.operatorId||!assets.shared.characters.Any(c=>c.id==s.explorer)||!assets.shared.characters.Any(c=>c.id==s.operatorId)||(s.state.sequence>0&&(!s.state.clue||Enumerable.Range(0,s.state.sequence).Any(i=>!s.state.relays[VigilanciaState.Order[i]])))||(s.state.lift&&s.state.sequence!=3)||(s.state.completed&&!s.state.lift))throw new InvalidDataException("Checkpoint incompatible");
    State=s.state;State.ResetTimers();LocalParty.Select(s.explorer,s.operatorId);Alarms=s.alarms;Started=true;Ready[0]=Ready[1]=true;Paused=false;Alert=0;immunity=Clock+5;Array.Clear(disabledUntil,0,4);liftProgress=State.lift?1:0;
-   for(int p=0;p<2;p++){Notes[p]=false;Players[p].art=assets.shared.characters.First(c=>c.id==(p==0?s.explorer:s.operatorId));Players[p].Teleport(Offset(p)+Spawn);}SaveError="";return true;
+   for(int p=0;p<2;p++){Notes[p]=false;Players[p].art=CharacterFor(p==0?s.explorer:s.operatorId,p);Players[p].Teleport(Offset(p)+Spawn);}SaveError="";return true;
   }catch(Exception e)when(e is IOException||e is InvalidDataException||e is UnauthorizedAccessException||e is ArgumentException){SaveError="No se pudo recuperar: "+e.Message;return false;}}
   public void Load(string scene){if(loading||!Application.CanStreamedLevelBeLoaded(scene))return;loading=true;SceneManager.LoadSceneAsync(scene);}
   void OnDestroy(){if(pixel)Destroy(pixel);if(lineMaterial)Destroy(lineMaterial);foreach(var mesh in cones)if(mesh)Destroy(mesh);}

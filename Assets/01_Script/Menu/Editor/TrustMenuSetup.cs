@@ -97,6 +97,9 @@ namespace TrustEXE.Menu.Editor
                 menu.Choose(0,-1); Assert(menu.SelectedIndex(0)==11,"Navigation wraps");
                 menu.Choose(0,7); menu.Choose(1,10); menu.Confirm(0); menu.Confirm(1); menu.BeginStory();
                 Assert(LocalParty.Explorer=="Mara" && LocalParty.Operator=="Ren", "Session identities preserved");
+                menu.Choose(0,11); menu.Choose(1,9);
+                Assert(LocalParty.Explorer=="Zoro" && LocalParty.Operator=="Nova", "any selection propagates to the session before the ready screen");
+                menu.Unlock(0);menu.Unlock(1);menu.Choose(0,7);menu.Choose(1,10);menu.Confirm(0);menu.Confirm(1);
                 Assert(menu.CurrentScreen==TrustMenuController.Screen.Story,"Story after both confirmations");
                 menu.AdvanceStory(); Assert(menu.StoryPage==0,"First press reveals text");
                 menu.AdvanceStory(); Assert(menu.StoryPage==1,"Second press advances");

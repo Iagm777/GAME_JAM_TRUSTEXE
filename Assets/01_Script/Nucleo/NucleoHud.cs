@@ -1,6 +1,7 @@
 using System.Linq;
 using System.IO;
 using UnityEngine;
+using TrustEXE.Core;
 using TrustEXE.Menu;
 using TrustEXE.Tutorial;
 using TrustEXE.Vigilancia;
@@ -22,7 +23,7 @@ namespace TrustEXE.Nucleo {
    for(int p=0;p<2;p++){
     float x=p*800;Color c=p==0?amber:cyan;
     Label(x+28,65,740,35,"P"+(p+1)+" / "+(p==0?LocalParty.Explorer+" · FÍSICO":LocalParty.Operator+" · VIRTUAL"),24,c);
-    Label(x+28,104,740,25,"INTEGRIDAD "+game.Integrity+" / 4     REINTENTOS "+game.State.strikes+"     ENLACES "+game.State.cooperation,17,Color.white);
+    Label(x+28,104,740,25,(p==0?"VIDAS "+GameSession.Lives+"/"+GameSession.MaxLives+"     ":"")+"INTEGRIDAD "+game.Integrity+" / 4     REINTENTOS "+game.State.strikes+"     ENLACES "+game.State.cooperation,17,Color.white);
     int n=game.Nearest(p);string prompt=n<0?"Láser: verde libre · ámbar aviso · rojo daño":LocalControls.ActionName(p)+" / "+(n<3?"NODO "+NucleoGame.Symbol(n):n==3?"LEER REGISTRO":n==4?"AISLAR E.V.A.":"RESTAURAR E.V.A.");
     Label(x+28,730,740,32,prompt,19,c);Label(x+28,766,740,48,game.Objective,20,Color.white);
     Label(x+28,816,740,26,LocalControls.MoveName(p)+" mover · "+LocalControls.ActionName(p)+" actuar · "+LocalControls.HelpName(p)+" notas",16,c);
@@ -41,7 +42,7 @@ namespace TrustEXE.Nucleo {
    if(Button(1440,848,135,36,"PAUSA"))game.Paused=!game.Paused;
    if(!game.Started){
     Box(260,190,1080,495,ink);Label(305,218,990,50,"EL ÚLTIMO PROTOCOLO",36,amber);
-    Label(305,280,990,230,"1. Energía: activen el mismo nodo en ambas capas en menos de 7 s. Completen I, II y III.\n2. Verificación: ambos leen REGISTRO; P2 introduce la secuencia actual de P1.\n3. Sincronización: III > I > II, con 2,5 s entre compañeros.\n4. Suban a la sala final y elijan juntos el destino de E.V.A.\n\nEsquiven patrullas y láseres. Cuatro impactos o agotar el tiempo reinician la etapa.",25,Color.white);
+    Label(305,280,990,230,"1. Energía: activen el mismo nodo en ambas capas en menos de 20 s. Completen I, II y III.\n2. Verificación: ambos leen REGISTRO; P2 introduce la secuencia actual de P1.\n3. Sincronización: III > I > II, con 2,5 s entre compañeros.\n4. Suban a la sala final y elijan juntos el destino de E.V.A.\n\nEsquiven patrullas y láseres. Cuatro impactos o agotar el tiempo cuestan una vida compartida; perdidas todas, fin.",25,Color.white);
     for(int p=0;p<2;p++)if(Button(305+p*505,540,480,52,game.Ready[p]?"P"+(p+1)+" LISTO":"P"+(p+1)+" LISTO / "+LocalControls.ActionName(p)))game.SetReady(p);
     if(File.Exists(NucleoGame.SavePath)&&Button(550,615,500,42,"RECUPERAR NÚCLEO"))game.Restore();
    }

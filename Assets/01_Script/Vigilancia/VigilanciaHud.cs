@@ -1,4 +1,5 @@
 using UnityEngine;
+using TrustEXE.Core;
 using TrustEXE.Tutorial;
 using TrustEXE.Menu;
 namespace TrustEXE.Vigilancia {
@@ -20,7 +21,7 @@ namespace TrustEXE.Vigilancia {
    for(int p=0;p<2;p++){
     float x=p*800;Color c=p==0?amber:cyan;
     Box(x+26,62,748,2,c);Label(x+28,73,735,32,"P"+(p+1)+" / "+(p==0?LocalParty.Explorer+" · FÍSICO":LocalParty.Operator+" · VIRTUAL"),21,c,true);
-    string status=p==0?"DETECCIÓN "+Mathf.RoundToInt(game.Alert*100)+"%    ALARMAS "+game.Alarms:"SECUENCIA "+game.State.sequence+" / 3    RELÉS "+(game.State.relays[0]?"I ":"")+(game.State.relays[1]?"II ":"")+(game.State.relays[2]?"III":"");
+    string status=p==0?"DETECCIÓN "+Mathf.RoundToInt(game.Alert*100)+"%    ALARMAS "+game.Alarms+"    VIDAS "+GameSession.Lives+"/"+GameSession.MaxLives:"SECUENCIA "+game.State.sequence+" / 3    RELÉS "+(game.State.relays[0]?"I ":"")+(game.State.relays[1]?"II ":"")+(game.State.relays[2]?"III":"");
     Label(x+28,107,740,24,status,15,Color.white);
     if(p==0){Box(400,114,370,5,new Color(.15f,.2f,.25f));Box(400,114,370*game.Alert,5,new Color(1,.25f,.12f));}
     int n=game.Nearest(p);string prompt=game.AtExit[p]?"EN ASCENSOR / ESPERANDO AL COMPAÑERO":n>=0?LocalControls.ActionName(p)+" / "+game.DeviceName(p,n):"LÁSER: TENUE = LIBRE · ÁMBAR = AVISO · ROJO = BLOQUEADO";

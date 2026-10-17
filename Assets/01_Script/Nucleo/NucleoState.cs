@@ -11,7 +11,7 @@ namespace TrustEXE.Nucleo {
   public bool Energy(int p,int node,float clock){
    if(stage!=0||p<0||p>1||node<0||node>2||powered[node])return false;
    pulses[p*3+node]=clock;
-   if(clock-pulses[(1-p)*3+node]>7)return false;
+   if(clock-pulses[(1-p)*3+node]>20)return false;
    powered[node]=true;cooperation++;
    if(Array.TrueForAll(powered,x=>x)){stage=1;ResetTransient();}return true;
   }

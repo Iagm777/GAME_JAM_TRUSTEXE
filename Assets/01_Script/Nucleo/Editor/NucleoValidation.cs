@@ -9,7 +9,7 @@ namespace TrustEXE.Nucleo.Editor {
   public static void Check(bool condition,string name){if(!condition)throw new Exception("FAIL: "+name);}
   public static void Run(){
    var s=new NucleoState();Check(!s.Decode(2)&&!s.Sync(0,2,1)&&!s.Vote(0,0),"stage gates");
-   Check(!s.Energy(0,0,1)&&!s.Energy(1,0,9)&&s.Energy(0,0,10),"energy expiry and retry");
+   Check(!s.Energy(0,0,1)&&!s.Energy(1,0,30)&&s.Energy(0,0,31),"energy expiry and retry");
    for(int n=1;n<3;n++){Check(!s.Energy(0,n,11),"dual energy required");Check(s.Energy(1,n,12),"paired energy");}
    Check(s.stage==1&&!s.Decode(2),"both records required");s.inspected[0]=s.inspected[1]=true;
    Check(!s.Decode(0)&&s.sequence==0,"EVA stale order rejected");Check(s.Decode(2)&&s.Decode(0)&&s.Decode(1)&&s.stage==2,"true order accepted");
