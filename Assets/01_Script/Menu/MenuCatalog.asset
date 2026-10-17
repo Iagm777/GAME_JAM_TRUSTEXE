@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ae68cb41384aba4699083a406d92803, type: 3}
+  m_Name: MenuCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::TrustEXE.Menu.TrustMenuCatalog
+  avatars:
+  - id: Axi
+    idle: {fileID: 2800000, guid: cc7a9b5a0ea82e040b78c2555d442272, type: 3}
+    walk:
+    - {fileID: 2800000, guid: 03ec2fa5898fab041944987bfd94f18e, type: 3}
+    - {fileID: 2800000, guid: b84870699d666ca4a962654dc131afde, type: 3}
+    - {fileID: 2800000, guid: ad59701e66b70aa4ea8f08c48a093271, type: 3}
+    think:
+    - {fileID: 2800000, guid: 32cb72e5e33eb38459d1becc82533c79, type: 3}
+    - {fileID: 2800000, guid: ea4cf8d9755e4f248bfc3f92fa9914ab, type: 3}
+  - id: Bruno
+    idle: {fileID: 2800000, guid: 7c45b4cadf5a8a046800fc97b9d8c79a, type: 3}
+    walk:
+    - {fileID: 2800000, guid: b0d663eae1d474644917974bcb6b66d8, type: 3}
+    - {fileID: 2800000, guid: 701301fa915ddb740abd328a3abf2653, type: 3}
+    - {fileID: 2800000, guid: 50153c6fa1bf08a4f861d47142ad8df2, type: 3}
+    think:
+    - {fileID: 2800000, guid: b5a357e2d96b4df4ea710cae4ae2ac8e, type: 3}
+    - {fileID: 2800000, guid: cd0c062bac8e82a4cbe7635c7bad3293, type: 3}
+  - id: Byte
+    idle: {fileID: 2800000, guid: ba62a7ecdfc383a4ab96a12a5b52efd1, type: 3}
+    walk:
+    - {fileID: 2800000, guid: a38d858af9796b4489bb84ada476cade, type: 3}
+    - {fileID: 2800000, guid: ac56ec8d1193931479a8691f55cb7c42, type: 3}
+    - {fileID: 2800000, guid: b250232dbcda3174ca91664888923a0b, type: 3}
+    think:
+    - {fileID: 2800000, guid: 137b3fd43ffbc8948ad9222b5565e601, type: 3}
+    - {fileID: 2800000, guid: d5b62674447f8034c8c2f95e26354b27, type: 3}
+  - id: Elian
+    idle: {fileID: 2800000, guid: 8893998b6668b6a4dbeab5828985ae8a, type: 3}
+    walk:
+    - {fileID: 2800000, guid: 9eb7b0797a8d5264591f0b45d79805d6, type: 3}
+    - {fileID: 2800000, guid: c06bdb7d53f925c49b351573daacfa5b, type: 3}
+    - {fileID: 2800000, guid: bf22ff8f56c24884aa54ec872e82b1d3, type: 3}
+    think:
+    - {fileID: 2800000, guid: f0a37a86b477dd44cac7094c3159cd4c, type: 3}
+    - {fileID: 2800000, guid: 492f79264eaf7e645aa13e9f40d3f225, type: 3}
+  - id: Kai
+    idle: {fileID: 2800000, guid: 58e5854bae4dc194bba36cfb3769bf86, type: 3}
+    walk:
+    - {fileID: 2800000, guid: 4057bc3f1dfd7f446979744b7425fc29, type: 3}
+    - {fileID: 2800000, guid: a541d97b9b03b9b48878192d47cf661d, type: 3}
+    - {fileID: 2800000, guid: 5dd45bdeaaabecd48b214bca0e30be35, type: 3}
+    think:
+    - {fileID: 2800000, guid: 75416b9c771d254478381fceb837a5a8, type: 3}
+    - {fileID: 2800000, guid: 3fd7bd1f375395e418ed273bbf2caa29, type: 3}
+  - id: KBot
+    idle: {fileID: 2800000, guid: f258b66bba801ab46a105959fa173a0a, type: 3}
+    walk:
+    - {fileID: 2800000, guid: 2b86ec37db1d0dd46b35c169eba1f675, type: 3}
+    - {fileID: 2800000, guid: 5509914292a5a8f478e56d618898f7af, type: 3}
+    - {fileID: 2800000, guid: 3308ca5c637acc74e95cd1c798d2423c, type: 3}
+    think:
+    - {fileID: 2800000, guid: d53097af71309114e95e1ea6c4601339, type: 3}
+    - {fileID: 2800000, guid: 37b43190be38e3a408137b88f50037d0, type: 3}
+  - id: Lyra
+    idle: {fileID: 2800000, guid: e7dec9f1f1b03b841a101ac764e7b5b0, type: 3}
+    walk:
+    - {fileID: 2800000, guid: 856bb6d096e381d4aae85c0cfceaed90, type: 3}
+    - {fileID: 2800000, guid: dc0de1b410b68a94f87f014726f1d300, type: 3}
+    - {fileID: 2800000, guid: a3fbb62d3ca5e9a45b8508c57495bb9b, type: 3}
+    think:
+    - {fileID: 2800000, guid: 94943559ef2efd445b774b6adeecf76f, type: 3}
+    - {fileID: 2800000, guid: b99c6c15d42def548abe5d3851d0cd8e, type: 3}
+  - id: Mara
+    idle: {fileID: 2800000, guid: 5ed1461d055af304f95e6c4ed0a6acae, type: 3}
+    walk:
+    - {fileID: 2800000, guid: aac77931dfd28f54cb13a11dd8e06811, type: 3}
+    - {fileID: 2800000, guid: c321ce679f326e849ab8cca899184488, type: 3}
+    - {fileID: 2800000, guid: 740523f5b6273724e845b4630ef801d8, type: 3}
+    think:
+    - {fileID: 2800000, guid: 014edf5d57130bb43b4e1da940ba32ef, type: 3}
+    - {fileID: 2800000, guid: c5a30be6e915f2647ae3d68bfce1da43, type: 3}
+  - id: Noah
+    idle: {fileID: 2800000, guid: 7f8164148958d094ba32a15b87acd2da, type: 3}
+    walk:
+    - {fileID: 2800000, guid: 986bd03bc6c143644b3ca972a213f22b, type: 3}
+    - {fileID: 2800000, guid: dd85ec7b5bb55e6449bd7d6f966bf70d, type: 3}
+    - {fileID: 2800000, guid: 9f9817e55261ad3478ce9a16a04ad5e8, type: 3}
+    think:
+    - {fileID: 2800000, guid: be510a1e2e6d82740b3b427d7ff83250, type: 3}
+    - {fileID: 2800000, guid: cce58484bb7d5a143a77361fcf1c2927, type: 3}
+  - id: Nova
+    idle: {fileID: 2800000, guid: 452c99f9d0c0a3b4e93234963553e926, type: 3}
+    walk:
+    - {fileID: 2800000, guid: 989eec1917dd3144385f2472703e299c, type: 3}
+    - {fileID: 2800000, guid: 18630e288bad0014faef66a497290749, type: 3}
+    - {fileID: 2800000, guid: 0e8c8d334da39b446940ca49889b50a8, type: 3}
+    think:
+    - {fileID: 2800000, guid: 677bc2cdb6848774288382a724c0a084, type: 3}
+    - {fileID: 2800000, guid: a9914de25866e644a9517e3cec7800af, type: 3}
+  - id: Ren
+    idle: {fileID: 2800000, guid: 160528fd8c1142e4bbf554b0ff3f15b6, type: 3}
+    walk:
+    - {fileID: 2800000, guid: 4785f691af65e9743a0f2a876029e583, type: 3}
+    - {fileID: 2800000, guid: 36df8356b9d18fd439097a02d0877c6f, type: 3}
+    - {fileID: 2800000, guid: 0d3f65fa7bf9a5044b566e8c6befc932, type: 3}
+    think:
+    - {fileID: 2800000, guid: adc78eeff41afbb4d807f7ea6e4ab105, type: 3}
+    - {fileID: 2800000, guid: 22d7253c4e947e94e94d712e908a490a, type: 3}
+  - id: Zoro
+    idle: {fileID: 2800000, guid: 6fecfa6ec9482684c953f318ccce6d50, type: 3}
+    walk:
+    - {fileID: 2800000, guid: 5b89a8be159d2d144a83e5ede8cb6aa8, type: 3}
+    - {fileID: 2800000, guid: 758fec460087bb947abbb1c12a77ca83, type: 3}
+    - {fileID: 2800000, guid: 41f33e89b83f11e498b266dbda6d93f4, type: 3}
+    think:
+    - {fileID: 2800000, guid: eca0cb87627d80443bf588e027bb089e, type: 3}
+    - {fileID: 2800000, guid: ab27efa219b83e04bb3dcefb2acc9920, type: 3}
+  eva:
+  - {fileID: 2800000, guid: d591d049729c9454e96145e6393fa3c8, type: 3}
+  - {fileID: 2800000, guid: 7e4dcc754424e2f4cb54ac6b5dfb1f4e, type: 3}
+  - {fileID: 2800000, guid: 2ed24d3420dd4304db43202f2f3ef716, type: 3}
+  - {fileID: 2800000, guid: b795cbc80d0955c4eb153f865ca60411, type: 3}
+  backdrop: {fileID: 2800000, guid: cb17d3a8fbeaf2643bb8496e598ea61c, type: 3}
+  tutorialScene: Tutorial
